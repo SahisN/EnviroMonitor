@@ -64,7 +64,6 @@ The system follows a **simple sensor → Arduino → display** flow:
     3. **OLED Display**: Shows live readings in an easy-to-read format (numbers, bars, or simple graphs).  
 
 ### Block Diagram
-Show Image here
 ![System Diagram Image](diagrams/system-diagram.png)
 
 
