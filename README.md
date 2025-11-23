@@ -65,10 +65,10 @@ The system follows a **simple sensor → Arduino → display** flow:
 
 ### Block Diagram
 Show Image here
-![System Diagram Image](diagrams\enviroment sensor system.png)
+![System Diagram Image](diagrams/enviroment sensor system.png)
 
 
 
 ### Circuit Diagram
-![Circuit Diagram Image](diagrams\circuit diagram.png)
+![Circuit Diagram Image](diagrams/circuit diagram.png)
 
