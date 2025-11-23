@@ -1,4 +1,4 @@
-# DIY Indoor Environment Monitoring System
+# DIY Indoor Environment Monitoring System (In progress)
 
 A fun and easy **DIY gadget** project to monitor your indoor environment using an **Arduino Nano**. Measure **temperature, humidity, light level, and air quality** in real-time and display it on a **2.5-inch OLED screen**. Perfect for hobbyists, makers, and anyone who wants to understand their indoor environment better.
 
