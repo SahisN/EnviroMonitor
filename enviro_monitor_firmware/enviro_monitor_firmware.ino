@@ -40,6 +40,9 @@ static const unsigned char PROGMEM image_download_bits[] = {0x1c,0x00,0x22,0x02,
 
 static const unsigned char PROGMEM image_weather_frost_bits[] = {0x01,0x00,0x13,0x90,0x31,0x18,0x73,0x9c,0x09,0x20,0x05,0x40,0x53,0x94,0xfe,0xfe,0x53,0x94,0x05,0x40,0x09,0x20,0x73,0x9c,0x31,0x18,0x13,0x90,0x01,0x00,0x00,0x00};
 
+// screen view selection state
+int view = 0;
+
 void splash_screen() {
   display.clearDisplay();
   delay(500);
@@ -61,7 +64,7 @@ void setup() {
   }
 
   dht.begin();
-  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(buttonPin, INPUT);
 
   display.clearDisplay();
   display.setTextColor(WHITE);
@@ -74,22 +77,44 @@ void loop() {
 
   // button interrupt
   if(buttonState == HIGH) {
-    update_sensor_data();
+    delay(200);
+
+    if(view > 3) {
+      view = 0;
+    }
+
+    else {
+      view++;
+    }
+
     last_sensor_update = 0;
-    return;
   }
 
   if(millis() - last_sensor_update >= sensor_interval) {
     last_sensor_update = millis();
-    Serial.begin("display");
-    update_sensor_data();
+
+    if(view == 0) {
+      enviroment_data_overview();
+    }
+
+    else if(view == 1) {
+      display_temp_humidity();
+    }
+
+    else if(view == 2) {
+      display_light_level();
+    }
+
+    else if(view == 3) {
+      display_air_quality();
+    }
   }
   
 }
 
 
 float convert_to_fareheight(float temp_in_C) {
-  return temp_in_C * (9/5) + 32;
+  return temp_in_C * 1.8 + 32;
 }
 
 float calculate_dew_point(float temp_in_C, float humidity) {
@@ -149,7 +174,10 @@ void display_temp_humidity() {
 
   // Layer 10
   display.setCursor(82, 44);
-  display.print(dew_point);
+  display.print(dew_point, " C");
+
+  display.setCursor(108, 44);
+  display.print("C");
 
   // Layer 11
   display.drawLine(0, 0, 0, 0, 1);
@@ -157,6 +185,9 @@ void display_temp_humidity() {
   // Layer 13
   display.setCursor(82, 55);
   display.print(convert_to_fareheight(dew_point));
+  
+  display.setCursor(115, 55);
+  display.print("C");
 
   // weather_frost
   display.drawBitmap(63, 45, image_weather_frost_bits, 15, 16, 1);
@@ -169,17 +200,69 @@ void display_temp_humidity() {
 */
 
 void display_light_level() {
+  String light_level_message = categorize_light_level();
+  const int light_level = analogRead(LDR_pin);
+
+  display.clearDisplay();
+
+  // Layer 1
+  display.setTextColor(1);
+  display.setTextWrap(false);
+  display.setCursor(31, 3);
+  display.print("Light Level");
+
+  // Layer 3
+  display.setCursor(30, 24);
+  display.print(light_level_message);
+
+  // lamp_on
+  display.drawBitmap(6, 19, image_download_2_bits, 13, 16, 1);
+
+  // Layer 4
+  display.setCursor(5, 46);
+  display.print("Resistance:");
+
+  // Layer 5
+  display.setCursor(74, 46);
+  display.print(light_level);
+
+  display.display();
 }
 
 /**
   Only displays air quality data for a focused view
 */
 void display_air_quality() {
+  String air_quality_message = categorize_air_quality_level();
+  const int air_quality_level = analogRead(mq_125_pin);
 
+  display.clearDisplay();
+  
+  // Layer 1
+  display.setTextColor(1);
+  display.setTextWrap(false);
+  display.setCursor(19, 2);
+  display.print("Air Quality Level");
+
+  // Layer 3
+  display.setCursor(30, 25);
+  display.print(air_quality_message);
+
+  // Layer 4
+  display.setCursor(5, 46);
+  display.print("Resistance:");
+
+  // Layer 5
+  display.setCursor(74, 46);
+  display.print(air_quality_level);
+
+  // weather_wind
+  display.drawBitmap(5, 20, image_download_3_bits, 15, 16, 1);
+
+  display.display();
 }
 
 String categorize_air_quality_level() {
-
   const int air_quality_level = analogRead(mq_125_pin);
 
   if(air_quality_level <= 300) {
@@ -225,13 +308,13 @@ String categorize_light_level() {
   Displays to oled display for easy visualization
 */
 
-void update_sensor_data() {
+void enviroment_data_overview() {
   const float temp_in_celsius = dht.readTemperature();
   const float temp_in_fahrenheit = dht.readTemperature(true);
   const float humidity = dht.readHumidity();
   String light_level_message = categorize_light_level();
   String air_quality_message = categorize_air_quality_level();
-  
+
 
   display.clearDisplay();
 
@@ -282,6 +365,7 @@ void update_sensor_data() {
   display.print(air_quality_message);
 
   display.display();
+
 }
 
 
