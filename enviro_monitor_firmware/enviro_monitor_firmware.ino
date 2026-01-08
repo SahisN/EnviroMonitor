@@ -76,10 +76,10 @@ void loop() {
   buttonState = digitalRead(buttonPin);
 
   // button interrupt
-  if(buttonState == HIGH) {
+  if(buttonState == LOW) {
     delay(200);
 
-    if(view > 3) {
+    if(view > 2) {
       view = 0;
     }
 
@@ -133,64 +133,84 @@ void display_temp_humidity() {
   const float temp_in_celsius = dht.readTemperature();
   const float temp_in_fahrenheit = dht.readTemperature(true);
   const float humidity = dht.readHumidity();
-  const float dew_point = calculate_dew_point(temp_in_celsius, humidity);
+  const float dew_point_in_celsius = calculate_dew_point(temp_in_celsius, humidity);
   
-  display.clearDisplay();
+ display.clearDisplay();
 
   // Layer 1
   display.setTextColor(1);
   display.setTextWrap(false);
-  display.setCursor(3, 1);
+  display.setCursor(1, 1);
   display.print("Temperature");
 
   // download
   display.drawBitmap(3, 12, image_download_bits, 16, 16, 1);
 
   // Layer 3
-  display.setCursor(26, 14);
-  display.print(temp_in_celsius);
-
-  // Layer 4
-  display.drawLine(70, 14, 70, 20, 1);
+  display.setCursor(21, 12);
+  display.print(temp_in_celsius, 2);
 
   // Layer 5
-  display.setCursor(77, 14);
-  display.print(temp_in_fahrenheit);
+  display.setCursor(21, 22);
+  display.print(temp_in_fahrenheit, 2);
 
   // Layer 6
-  display.setCursor(3, 33);
+  display.setCursor(76, 2);
   display.print("Humidity");
 
   // download
-  display.drawBitmap(4, 42, image_download_1_bits, 11, 16, 1);
+  display.drawBitmap(73, 12, image_download_1_bits, 11, 16, 1);
 
   // Layer 8
-  display.setCursor(20, 48);
+  display.setCursor(86, 16);
   display.print(humidity);
 
   // Layer 9
-  display.setCursor(66, 33);
+  display.setCursor(46, 34);
   display.print("Dew Point");
-
-  // Layer 10
-  display.setCursor(82, 44);
-  display.print(dew_point, " C");
-
-  display.setCursor(108, 44);
-  display.print("C");
 
   // Layer 11
   display.drawLine(0, 0, 0, 0, 1);
 
   // Layer 13
-  display.setCursor(82, 55);
-  display.print(convert_to_fareheight(dew_point));
-  
-  display.setCursor(115, 55);
-  display.print("C");
+  display.setCursor(21, 48);
+  display.print(dew_point_in_celsius);
 
   // weather_frost
-  display.drawBitmap(63, 45, image_weather_frost_bits, 15, 16, 1);
+  display.drawBitmap(3, 44, image_weather_frost_bits, 15, 16, 1);
+
+  // Layer 13
+  display.setCursor(74, 48);
+  display.print(convert_to_fareheight(dew_point_in_celsius), 2);
+
+  // Layer 14
+  display.drawLine(0, 31, 128, 31, 1);
+
+  // Layer 14
+  display.drawLine(69, 0, 69, 30, 1);
+
+  // Layer 15
+  display.drawLine(67, 46, 67, 56, 1);
+
+  // Layer 16
+  display.setCursor(54, 48);
+  display.print("C");
+
+  // Layer 17
+  display.setCursor(108, 48);
+  display.print("F");
+
+  // Layer 18
+  display.setCursor(119, 16);
+  display.print("%");
+
+  // Layer 19
+  display.setCursor(54, 12);
+  display.print("C");
+
+  // Layer 20
+  display.setCursor(54, 22);
+  display.print("F");
 
   display.display();
 }
